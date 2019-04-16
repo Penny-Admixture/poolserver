@@ -99,12 +99,12 @@ void Log::Write(LogLevel level, LogType type, std::string msg)
         case LOG_LEVEL_DEBUG:
             if (sConfig.Get<uint32_t>("LogConsoleLevel") >= level) {
                 uint32_t debugmask = sConfig.Get<uint32_t>("LogConsoleDebugMask");
-                if (debugmask & uint32_t(pow(2, type)))
+                if (debugmask & uint32_t(pow(2, static_cast<double>(type))))
                     std::cout << timestamp << " [DEBUG] " << msg << std::endl;
             }
             if (sConfig.Get<uint32_t>("LogFileLevel") >= level) {
                 uint32_t debugmask = sConfig.Get<uint32_t>("LogFileDebugMask");
-                if (debugmask & uint32_t(pow(2, type)))
+                if (debugmask & uint32_t(pow(2, static_cast<double>(type))))
                     AppendFile(timestamp + " [DEBUG] " + msg);
             }
             break;

@@ -345,11 +345,12 @@ namespace Stratum
         
         // Split coinbase
         // tx.version                   - 4 bytes
+	// tx.timestamp                 - 4 bytes
         // tx.in[0].outpoint.hash       - 32 bytes
         // tx.in[0].outpoint.n          - 4 bytes
         // tx.script (varint)           - 2 bytes
         // tx.script (block height)     - 4 bytes
-        uint32 cbsplit = 4 + 32 + 4 + 2 + 4;
+        uint32 cbsplit = 4 + 4 + 32 + 4 + 2 + 4;
         job->coinbase1 = BinaryData(coinbase.begin(), coinbase.begin() + cbsplit);
         job->coinbase2 = BinaryData(coinbase.begin() + cbsplit + 8, coinbase.end()); // plus extranonce size
         

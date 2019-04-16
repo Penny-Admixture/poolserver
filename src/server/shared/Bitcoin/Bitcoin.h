@@ -39,7 +39,9 @@ namespace Bitcoin
         // Extranonce placeholder
         BinaryData extranonce_ph(8, 0);
         ByteBuffer scriptsig;
-        scriptsig << blockHeight << extranonce_ph << extras;
+	uint8 three=3;
+	scriptsig << three << blockHeight;
+        scriptsig << extranonce_ph << extras;
         
         Bitcoin::OutPoint outpoint;
         outpoint.hash.resize(32, 0);

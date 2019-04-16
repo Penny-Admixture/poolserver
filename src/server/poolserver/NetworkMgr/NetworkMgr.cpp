@@ -3,7 +3,7 @@
 
 NetworkMgr* NetworkMgr::singleton = 0;
 
-NetworkMgr::NetworkMgr(asio::io_service& io_service) : _io_service(io_service), _blockNotifyTimer(io_service), _blockCheckTimer(io_service), _blockHeight(0)
+NetworkMgr::NetworkMgr(asio::io_service& io_service) : _io_service(io_service), _blockNotifyTimer(io_service), _blockCheckTimer(io_service), _blockHeight(-1)
 {
     BlockCheckTimerStart();
     BlockNotifyTimerStart();
@@ -21,7 +21,7 @@ void NetworkMgr::Connect(JSONRPCConnectionInfo coninfo)
     JSONRPC* bitcoinrpc = new JSONRPC();
     bitcoinrpc->Connect(coninfo);
     
-    JSON response = bitcoinrpc->Query("getinfo");
+    JSON response = bitcoinrpc->Query("getblockchaininfo");
     
     if (response["error"].GetType() != JSON_NULL)
         throw Exception(Util::FS("Failed to get response from bitcoin rpc: %s", response["error"].GetString().c_str()));
@@ -61,8 +61,10 @@ void NetworkMgr::UpdateBlockTemplate()
             
             // Add coinbase tx
             BinaryData pubkey = Util::ASCIIToBin(sConfig.Get<std::string>("MiningAddress"));
-            block->tx.push_back(Bitcoin::CreateCoinbaseTX(_blockHeight, pubkey, response["coinbasevalue"].GetInt(), Util::ASCIIToBin("D7PoolBeta")));
-            
+
+            block->tx.push_back(Bitcoin::CreateCoinbaseTX(_blockHeight+1, pubkey, response["coinbasevalue"].GetInt(), Util::ASCIIToBin("537061726B6C6572")));
+
+            //block->tx.push_back(Bitcoin::CreateCoinbaseTX(_blockHeight, pubkey, response["coinbasevalue"].GetInt(), Util::ASCIIToBin("706f6f6c6f766572")));
             // Fix nTime for coinbase tx
             block->tx[0].time = block->time;
             
@@ -131,10 +133,10 @@ void NetworkMgr::BlockCheck()
     for (int i = 0; i < _cons.size(); ++i)
     {
         try {
-            JSON response = _cons[i]->Query("getinfo");
+            JSON response = _cons[i]->Query("getblockchaininfo");
             uint32 curBlock = response["blocks"].GetInt();
             
-            if (curBlock > _blockHeight) {
+            if ((curBlock > _blockHeight) || _blockHeight == -1) {
                 sLog.Debug(LOG_SERVER, "New block on network! Height: %u", curBlock);
                 _blockHeight = curBlock;
                 
