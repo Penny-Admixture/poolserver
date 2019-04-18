@@ -44,7 +44,9 @@ void NetworkMgr::UpdateBlockTemplate()
     for (int i = 0; i < _cons.size(); ++i)
     {
         try {
-            JSON response = _cons[i]->Query("getblocktemplate");
+            JSON params;
+            params = JSON::FromString("[{\"rules\":[\"segwit\"]}]");
+            JSON response = _cons[i]->Query("getblocktemplate",params);
             
             // New blocks may not appear on all daemons the same time
             if (response["height"].GetInt() < _blockHeight)
